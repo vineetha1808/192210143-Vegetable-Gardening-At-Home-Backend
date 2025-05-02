@@ -2,8 +2,8 @@
 // db.php
 $servername = "localhost";
 $username = "root"; // replace with your MySQL username
-$password = ""; // replace with your MySQL password
-$dbname = "vegetable garden"; // replace with your database name
+$password = "vinitha"; // replace with your MySQL password
+$dbname = "veg_garden"; // replace with your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

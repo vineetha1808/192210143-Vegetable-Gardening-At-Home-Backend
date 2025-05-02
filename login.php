@@ -1,54 +1,43 @@
 <?php
-include('db.php');
-header('Content-Type: application/json');
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Read JSON input
-    $json = file_get_contents('php://input');
-    $data = json_decode($json, true);
+$host = "localhost";
+$username = "root";
+$password = "vinitha";
+$dbname = "veg_garden"; // ✔️ No backticks
 
-    if (!$data) {
-        echo json_encode(["success" => false, "message" => "Invalid JSON input."]);
-        exit();
-    }
+$conn = new mysqli($host, $username, $password, $dbname);
 
-    if (isset($data['email']) && isset($data['password'])) {
-        $email = $conn->real_escape_string($data['email']);
-        $password = $conn->real_escape_string($data['password']);
+if ($conn->connect_error) {
+    die(json_encode(["success" => false, "message" => "Database connection failed."]));
+}
 
-        $stmt = $conn->prepare("SELECT id, name, email, password FROM register WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+$data = json_decode(file_get_contents("php://input"));
 
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+if (!isset($data->email) || !isset($data->password)) {
+    echo json_encode(["success" => false, "message" => "Email and password are required."]);
+    exit();
+}
 
-            if ($password === $user['password']) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Login successful.",
-                    "data" => [
-                        "id" => $user['id'],
-                        "name" => $user['name'],
-                        "email" => $user['email']
-                    ]
-                ]);
-            } else {
-                echo json_encode(["success" => false, "message" => "Invalid email or password."]);
-            }
-        } else {
-            echo json_encode(["success" => false, "message" => "Invalid email or password."]);
-        }
-    } else {
-        echo json_encode(["success" => false, "message" => "Email and password are required."]);
-    }
+$email = $conn->real_escape_string($data->email);
+$password = $conn->real_escape_string($data->password);
+
+// Make sure the table name is correct (use `login` if that's your table)
+$sql = "SELECT * FROM register WHERE email = ? AND password = ?";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss", $email, $password);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    echo json_encode(["success" => true, "message" => "Login successful", 'username' => $row['name']]);
 } else {
-    echo json_encode(["success" => false, "message" => "Invalid request method. Use POST."]);
+    echo json_encode(["success" => false, "message" => "Invalid email or password"]);
 }
 
 $conn->close();
-?>

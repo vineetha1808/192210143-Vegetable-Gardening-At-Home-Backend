@@ -2,8 +2,8 @@
 // Database connection
 $host = "localhost";
 $user = "root";  // Default XAMPP user
-$password = "";  // Default XAMPP password
-$database = "vegetable garden";
+$password = "vinitha";  // Default XAMPP password
+$database = "veg_garden";
 
 $conn = new mysqli($host, $user, $password, $database);
 

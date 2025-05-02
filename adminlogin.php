@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         $password = trim($_POST['password']);
 
         // Fetch the admin data from the database
-        $sql = "SELECT id, email, password FROM adminregister WHERE email = ?";
+        $sql = "SELECT id, email, password FROM adminlogin WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             $admin = $result->fetch_assoc();
             
             // Verify the hashed password
-            if (password_verify($password, $admin['password'])) {
+            if ($password == $admin['password']) {
                 echo json_encode([
                     "success" => true,
                     "message" => "Admin login successful.",
